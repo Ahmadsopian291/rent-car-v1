@@ -60,8 +60,7 @@ export default function CarDetailPage() {
       navigate('/login');
       return;
     }
-    // TODO: Implement booking logic
-    console.log('Booking action for car:', car?.id);
+    navigate(`/booking/${car?.id}`);
   };
 
   const handleCartAction = () => {
