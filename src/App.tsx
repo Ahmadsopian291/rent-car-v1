@@ -15,6 +15,12 @@ import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import CarManagement from "./pages/admin/CarManagement";
+import BookingVerification from "./pages/admin/BookingVerification";
+import UserManagement from "./pages/admin/UserManagement";
+import BlogManagement from "./pages/admin/BlogManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
