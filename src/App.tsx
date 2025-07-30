@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { Navigation } from "@/components/Navigation";
 import HomePage from "./pages/HomePage";
 import CarsPage from "./pages/CarsPage";
+import CarDetailPage from "./pages/CarDetailPage";
 import AboutPage from "./pages/AboutPage";
 import BlogPage from "./pages/BlogPage";
 import ContactPage from "./pages/ContactPage";
@@ -29,6 +30,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/cars" element={<CarsPage />} />
+              <Route path="/cars/:id" element={<CarDetailPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/contact" element={<ContactPage />} />
