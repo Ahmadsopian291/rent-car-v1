@@ -14,7 +14,167 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: number
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          car_id: number
+          created_at: string | null
+          end_date: string
+          id: number
+          payment_proof_url: string | null
+          start_date: string
+          status: string | null
+          total_price: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          car_id: number
+          created_at?: string | null
+          end_date: string
+          id?: number
+          payment_proof_url?: string | null
+          start_date: string
+          status?: string | null
+          total_price: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          car_id?: number
+          created_at?: string | null
+          end_date?: string
+          id?: number
+          payment_proof_url?: string | null
+          start_date?: string
+          status?: string | null
+          total_price?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cars: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          engine_cc: number | null
+          fuel_type: string
+          id: number
+          image_url: string | null
+          is_available: boolean | null
+          name: string
+          price_per_day: number
+          seats: number
+          transmission: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          engine_cc?: number | null
+          fuel_type: string
+          id?: number
+          image_url?: string | null
+          is_available?: boolean | null
+          name: string
+          price_per_day: number
+          seats: number
+          transmission: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          engine_cc?: number | null
+          fuel_type?: string
+          id?: number
+          image_url?: string | null
+          is_available?: boolean | null
+          name?: string
+          price_per_day?: number
+          seats?: number
+          transmission?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          ktp_image_url: string | null
+          ktp_number: string | null
+          license_image_url: string | null
+          license_number: string | null
+          phone_number: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          ktp_image_url?: string | null
+          ktp_number?: string | null
+          license_image_url?: string | null
+          license_number?: string | null
+          phone_number?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          ktp_image_url?: string | null
+          ktp_number?: string | null
+          license_image_url?: string | null
+          license_number?: string | null
+          phone_number?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
