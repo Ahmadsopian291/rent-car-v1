@@ -27,7 +27,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/car-rent-v1/', // Ganti sesuai nama repo kamu
+  base: '/rent-car-v1/', // Ganti sesuai nama repo kamu
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
