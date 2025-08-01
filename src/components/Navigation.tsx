@@ -1,11 +1,38 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Car, LogOut, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Navigation = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserRole();
+    }
+  }, [user]);
+
+  const fetchUserRole = async () => {
+    if (!user) return;
+    
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      setUserRole(data?.role || 'user');
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      setUserRole('user');
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -20,33 +47,39 @@ export const Navigation = () => {
           <span>RentCar</span>
         </Link>
 
-        <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="text-foreground hover:text-primary transition-colors">
-            Beranda
-          </Link>
-          <Link to="/cars" className="text-foreground hover:text-primary transition-colors">
-            Koleksi Mobil
-          </Link>
-          <Link to="/about" className="text-foreground hover:text-primary transition-colors">
-            Tentang Kami
-          </Link>
-          <Link to="/blog" className="text-foreground hover:text-primary transition-colors">
-            Blog
-          </Link>
-          <Link to="/contact" className="text-foreground hover:text-primary transition-colors">
-            Kontak
-          </Link>
-        </div>
+        {/* Only show navigation links if not in dashboard or admin pages */}
+        {!location.pathname.startsWith('/dashboard') && !location.pathname.startsWith('/admin') && (
+          <div className="hidden md:flex items-center space-x-6">
+            <Link to="/" className="text-foreground hover:text-primary transition-colors">
+              Beranda
+            </Link>
+            <Link to="/cars" className="text-foreground hover:text-primary transition-colors">
+              Koleksi Mobil
+            </Link>
+            <Link to="/about" className="text-foreground hover:text-primary transition-colors">
+              Tentang Kami
+            </Link>
+            <Link to="/blog" className="text-foreground hover:text-primary transition-colors">
+              Blog
+            </Link>
+            <Link to="/contact" className="text-foreground hover:text-primary transition-colors">
+              Kontak
+            </Link>
+          </div>
+        )}
 
         <div className="flex items-center space-x-3">
           {user ? (
             <>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/dashboard">
-                  <User className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Link>
-              </Button>
+              {/* Show dashboard button only if not already in dashboard/admin pages */}
+              {!location.pathname.startsWith('/dashboard') && !location.pathname.startsWith('/admin') && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={userRole === 'admin' || userRole === 'sub_admin' ? '/admin' : '/dashboard'}>
+                    <User className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </Button>
+              )}
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout

@@ -7,13 +7,14 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -39,11 +40,26 @@ export default function LoginPage() {
           });
         }
       } else {
+        // Check user role and redirect accordingly
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        const userRole = userProfile?.role;
+
         toast({
           title: "Login Berhasil",
           description: "Selamat datang kembali!",
         });
-        navigate('/');
+
+        // Redirect based on role
+        if (userRole === 'admin' || userRole === 'sub_admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error) {
       toast({

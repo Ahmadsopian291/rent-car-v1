@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Pencil, Trash2, Plus } from 'lucide-react';
+import { RichTextEditor } from '@/components/RichTextEditor';
 
 interface BlogPost {
   id: number;
@@ -117,15 +117,11 @@ export default function BlogManagement() {
                   required
                 />
               </div>
-              <div>
-                <Textarea
-                  placeholder="Konten post"
-                  value={formData.content}
-                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                  rows={10}
-                  required
-                />
-              </div>
+              <RichTextEditor
+                value={formData.content}
+                onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+                placeholder="Tulis konten blog Anda di sini..."
+              />
               <div className="flex space-x-2">
                 <Button type="submit">{editingPost ? 'Perbarui' : 'Simpan'}</Button>
                 <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>Batal</Button>

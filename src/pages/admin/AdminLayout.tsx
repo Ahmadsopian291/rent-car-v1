@@ -10,11 +10,11 @@ export default function AdminLayout() {
         <div className="min-h-screen flex w-full">
           <AdminSidebar />
           <div className="flex-1 flex flex-col">
-            <header className="h-12 flex items-center border-b bg-background">
-              <SidebarTrigger className="ml-4" />
-              <h1 className="ml-4 font-semibold">Admin Panel</h1>
+            <header className="h-16 flex items-center border-b bg-background px-4">
+              <SidebarTrigger className="mr-4" />
+              <h1 className="font-semibold">Admin Panel</h1>
             </header>
-            <main className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto p-6">
               <Outlet />
             </main>
           </div>

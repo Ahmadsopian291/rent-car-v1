@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Pencil, Trash2, Plus, Eye } from 'lucide-react';
+import { Pencil, Trash2, Plus, Eye, Upload, X } from 'lucide-react';
 
 interface Car {
   id: number;
@@ -38,6 +38,9 @@ export default function CarManagement() {
   const [loading, setLoading] = useState(true);
   const [editingCar, setEditingCar] = useState<Car | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -104,6 +107,8 @@ export default function CarManagement() {
       is_available: true,
     });
     setEditingCar(null);
+    setImageFile(null);
+    setImagePreview('');
   };
 
   const handleEdit = (car: Car) => {
@@ -120,7 +125,52 @@ export default function CarManagement() {
       image_url: car.image_url || '',
       is_available: car.is_available,
     });
+    setImagePreview(car.image_url || '');
     setShowDialog(true);
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+
+    setUploading(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `car-images/${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('user-documents')
+        .upload(fileName, imageFile);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-documents')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Gagal mengupload gambar",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -136,6 +186,16 @@ export default function CarManagement() {
     }
 
     try {
+      let imageUrl = formData.image_url;
+
+      // Upload new image if selected
+      if (imageFile) {
+        const uploadedUrl = await uploadImage();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
       const carData = {
         name: formData.name,
         type: formData.type,
@@ -145,7 +205,7 @@ export default function CarManagement() {
         transmission: formData.transmission,
         engine_cc: parseInt(formData.engine_cc),
         description: formData.description,
-        image_url: formData.image_url,
+        image_url: imageUrl,
         is_available: formData.is_available,
       };
 
@@ -335,13 +395,57 @@ export default function CarManagement() {
                 </div>
 
                 <div>
-                  <Label htmlFor="image_url">URL Gambar</Label>
-                  <Input
-                    id="image_url"
-                    type="url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                  />
+                  <Label>Gambar Mobil</Label>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="flex-1"
+                      />
+                      {imagePreview && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setImageFile(null);
+                            setImagePreview('');
+                            setFormData(prev => ({ ...prev, image_url: '' }));
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {imagePreview && (
+                      <div className="border rounded-lg p-4 bg-muted/50">
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview" 
+                          className="max-w-full h-auto max-h-48 object-contain mx-auto rounded"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="text-sm text-muted-foreground">
+                      <p>Atau masukkan URL gambar:</p>
+                      <Input
+                        type="url"
+                        value={formData.image_url}
+                        onChange={(e) => {
+                          setFormData(prev => ({ ...prev, image_url: e.target.value }));
+                          if (e.target.value && !imageFile) {
+                            setImagePreview(e.target.value);
+                          }
+                        }}
+                        placeholder="https://example.com/image.jpg"
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -365,8 +469,13 @@ export default function CarManagement() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <Button type="submit">
-                    {editingCar ? 'Perbarui' : 'Simpan'}
+                  <Button type="submit" disabled={uploading}>
+                    {uploading ? (
+                      <>
+                        <Upload className="h-4 w-4 mr-2 animate-spin" />
+                        Mengupload...
+                      </>
+                    ) : editingCar ? 'Perbarui' : 'Simpan'}
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>
                     Batal
