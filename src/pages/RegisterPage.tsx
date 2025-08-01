@@ -115,7 +115,13 @@ export default function RegisterPage() {
       // Get current user session to get user ID
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        throw new Error('Unable to get user session');
+        // If no session, it means email confirmation is required
+        toast({
+          title: "Pendaftaran Berhasil",
+          description: "Pendaftaran berhasil tolong periksa email anda untuk konfirmasi.",
+        });
+        navigate('/login');
+        return;
       }
 
       // Upload files
