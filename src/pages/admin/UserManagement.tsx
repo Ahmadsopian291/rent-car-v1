@@ -14,6 +14,7 @@ interface UserProfile {
   phone_number: string;
   role: string;
   created_at: string;
+  date_of_birth: string;
 }
 
 export default function UserManagement() {
@@ -49,7 +50,7 @@ export default function UserManagement() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, phone_number, role, created_at')
+        .select('id, full_name, phone_number, role, created_at, date_of_birth')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -145,6 +146,7 @@ export default function UserManagement() {
                 <TableRow>
                   <TableHead>Nama Lengkap</TableHead>
                   <TableHead>No. Telepon</TableHead>
+                  <TableHead>Tanggal Lahir</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Bergabung</TableHead>
                   <TableHead>Aksi</TableHead>
@@ -157,6 +159,9 @@ export default function UserManagement() {
                       <div className="font-medium">{userProfile.full_name || 'N/A'}</div>
                     </TableCell>
                     <TableCell>{userProfile.phone_number || 'N/A'}</TableCell>
+                    <TableCell>
+                      {userProfile.date_of_birth ? new Date(userProfile.date_of_birth).toLocaleDateString('id-ID') : 'N/A'}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         {getRoleIcon(userProfile.role)}

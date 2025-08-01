@@ -4,10 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Eye, EyeOff, Upload } from 'lucide-react';
+import { Eye, EyeOff, Upload, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -19,6 +23,7 @@ export default function RegisterPage() {
     ktp_number: '',
     license_number: ''
   });
+  const [dateOfBirth, setDateOfBirth] = useState<Date>();
   const [ktpFile, setKtpFile] = useState<File | null>(null);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -125,7 +130,8 @@ export default function RegisterPage() {
           ktp_number: formData.ktp_number,
           license_number: formData.license_number,
           ktp_image_url: ktpUrl,
-          license_image_url: licenseUrl
+          license_image_url: licenseUrl,
+          date_of_birth: dateOfBirth ? dateOfBirth.toISOString().split('T')[0] : null
         })
         .eq('id', session.user.id);
 
@@ -250,6 +256,38 @@ export default function RegisterPage() {
               </div>
               
               <div>
+                <Label>Tanggal Lahir</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateOfBirth && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateOfBirth ? format(dateOfBirth, "dd/MM/yyyy") : <span>Pilih tanggal lahir</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateOfBirth}
+                      onSelect={setDateOfBirth}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
                 <Label htmlFor="ktp_number">Nomor KTP</Label>
                 <Input
                   id="ktp_number"
@@ -260,19 +298,20 @@ export default function RegisterPage() {
                   required
                 />
               </div>
+              
+              <div>
+                <Label htmlFor="license_number">Nomor SIM</Label>
+                <Input
+                  id="license_number"
+                  name="license_number"
+                  value={formData.license_number}
+                  onChange={handleInputChange}
+                  placeholder="Nomor SIM"
+                  required
+                />
+              </div>
             </div>
 
-            <div>
-              <Label htmlFor="license_number">Nomor SIM</Label>
-              <Input
-                id="license_number"
-                name="license_number"
-                value={formData.license_number}
-                onChange={handleInputChange}
-                placeholder="Nomor SIM"
-                required
-              />
-            </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
